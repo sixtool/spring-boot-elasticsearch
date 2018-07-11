@@ -57,17 +57,57 @@ docker run -d -p 5044:5044 -p 127.0.0.1:5601:5601 -p 127.0.0.1:9200:9200 -p 127.
 
 ### 关键依赖库
    ``` xml
-          <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
-          </dependency>
-          <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-          </dependency> 
-          <dependency>
-   			<groupId>net.logstash.logback</groupId>
-   			<artifactId>logstash-logback-encoder</artifactId>
-   			<version>4.9</version>
-   		</dependency>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>net.logstash.logback</groupId>
+          <artifactId>logstash-logback-encoder</artifactId>
+          <version>4.9</version>
+        </dependency>
    ```
+### logback 配置说明
+``` xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <logger name="org.springframework" level="INFO"/>
+
+    <!-- Logstash-Configuration -->
+    <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <!--这里我本地的logstash收集日志的端口-->
+        <destination>localhost:5044</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"service_name":"SpringBootLogger"}</customFields>
+            <fieldNames>
+                 <!--接收日志内容的字段名称，这里也可以用驼峰式-->
+                <message>log_message</message>
+            </fieldNames>
+        </encoder>
+        <keepAliveDuration>5 minutes</keepAliveDuration>
+    </appender>
+
+    <!--这里很重要，日志开启INFO级别，logstash只会收集INFO级别的-->
+    <root level="INFO">
+        <appender-ref ref="logstash" />
+    </root>
+</configuration>
+```
+### 模拟不停的收集日志，开启spring boot 自带自的任务调度工具
+``` java 
+         //每隔5秒种输出一下次日志
+         @Scheduled(fixedRate = 5000,initialDelay = 1000)
+         public void time1() {
+             Date date = new Date();
+             logger.info("pushing {}", dateFormat.format(date));
+         }
+```
+
+## SpringBootESLeanApplicatoin 程序启动后，来看看Kibana后台
+![](./doc/QQ20180711-222628@2x.png)
+> 注意如何不能在kibana后台看到数据，请参数改连接详细配置[logstash配置](http://www.tanwenliang.com/2018/07/06/spring-boot-elk-example.html)
