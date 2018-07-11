@@ -33,7 +33,7 @@ public class APILogStashController {
         return LogStashDataService.like(content);
     }
 
-    @RequestMapping(value = "count", method = RequestMethod.POST)
+    @RequestMapping(value = "list", method = RequestMethod.POST)
     public Object count(String content) {
         FunctionScoreQueryBuilder functionScoreQueryBuilder = QueryBuilders.functionScoreQuery()
                 .add(QueryBuilders.matchPhraseQuery("log_message", "pushing"),
