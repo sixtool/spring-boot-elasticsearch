@@ -21,7 +21,7 @@ docker run -d -p 5044:5044 -p 127.0.0.1:5601:5601 -p 127.0.0.1:9200:9200 -p 127.
 
 ## 项目结构如下
  ``` sh
-  #以下结构输出方法,输出tree到 temp.md,然后复制到文本中
+  #以下结构输出方法,输出tree到 temp.md,然后复制到README.md文本中
  tree --dirsfirst --noreport -I README.md | sed 's/^/    /' > temp.md 
  ```
     .
@@ -54,3 +54,20 @@ docker run -d -p 5044:5044 -p 127.0.0.1:5601:5601 -p 127.0.0.1:9200:9200 -p 127.
     │           └── logback-spring.xml  #主要是把logger.info这种日志输出到logstash中，关键配置
     ├── pom.xml
     └── spring-boot-es.iml
+
+### 关键依赖库
+   ``` xml
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+          </dependency>
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+          </dependency> 
+          <dependency>
+   			<groupId>net.logstash.logback</groupId>
+   			<artifactId>logstash-logback-encoder</artifactId>
+   			<version>4.9</version>
+   		</dependency>
+   ```
